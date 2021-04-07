@@ -133,12 +133,18 @@ class Chatbot():
         words = sentence.lower().split()
         tokens_list = list()
         for word in words:
-            tokens_list.append( self.tokenizer.word_index[ word ] ) 
+            try:
+                tokens_list.append( self.tokenizer.word_index[ word ] ) 
+            except KeyError as k:
+                return k
         return preprocessing.sequence.pad_sequences( [tokens_list] , maxlen=self.maxlen_questions , padding='post')
 
 
     def chat(self, query):
-        states_values = self.encoder_model.predict( self.str_to_tokens(query) )
+        model_input = self.str_to_tokens(query)
+        if str(type(model_input)) == '<class \'KeyError\'>':
+            return "I do not know what "+str(model_input)+" means, can you rephrase your sentence"
+        states_values = self.encoder_model.predict( model_input )
         empty_target_seq = np.zeros( ( 1 , 1 ) )
         empty_target_seq[0, 0] = self.tokenizer.word_index['start']
         stop_condition = False
@@ -151,7 +157,7 @@ class Chatbot():
                 if sampled_word_index == index :
                     response += ' {}'.format( word )
                     sampled_word = word
-            
+
             if sampled_word == 'end' or len(response.split()) > self.maxlen_answers:
                 stop_condition = True
                 

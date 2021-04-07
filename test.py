@@ -8,9 +8,9 @@ url = 'http://0.0.0.0:80/'
 # print(r.text)
 # url = "http://127.0.0.1:5000/"
 #data = {'input' : 'How are you'}
-#data = {'input' : 'Are you AI'}
+data = {'input' : 'Are you octopus'}
 #data = {'input' : 'Are you smart'}
-data = {'input': 'I am very happy'}
+#data = {'input': 'I am very happy'}
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 r = requests.post(url, data=json.dumps(data), headers=headers)
 
