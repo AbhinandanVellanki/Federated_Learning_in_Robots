@@ -1,0 +1,5 @@
+*.h5
+chatbot_nlp/
+*.yml
+*.pt
+.DS_Store
