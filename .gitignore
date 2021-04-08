@@ -3,3 +3,4 @@ chatbot_nlp/
 *.yml
 *.pt
 .DS_Store
+model_vocab.txt

@@ -36,10 +36,14 @@ def upload_input():
         else:
             if prev_input != "" and prev_response != "" and sentiment_analyser.predict_sentiment(query) > positive_sentiment_threshold:
                print("User sentiment is positive!:", sentiment_analyser.predict_sentiment(query))
+               print("Saving previous interaction...")
                print("User response was:",query)
                print("Previous Input:", prev_input)
                print("Previous Response:", prev_response)
                save_to_yaml(prev_input, prev_response, yaml_filename_1)
+               print("Saving current interaction...")
+               print("Input:",prev_response)
+               print("Response:",query)
                save_to_yaml(prev_response, query, yaml_filename_2)
             if len(query) > cbot.maxlen_questions:
                 response = 'Sorry! I cannot process such a long sentence, please say something shorter'
@@ -49,17 +53,16 @@ def upload_input():
                 print("Chatbot response sentiment: ",sentiment_analyser.predict_sentiment(response))
             prev_input = query
             prev_response = response
-            return jsonify({ "Item": response} )    
+            return jsonify({ "Item": response})   
     return '''
     <!doctype html>
     <title>API</title>
     <h1>API Running chatbot Successfully</h1>'''
 
 def save_to_yaml(input, response, yaml_filename):
-    print("Saving interaction to yaml file:", yaml_filename)
+    print("Saving interaction to yaml file:", yaml_filename,"...")
     with open(yaml_filename,'r') as yamlfile:
         yaml_data = yaml.load(yamlfile, Loader=yaml.FullLoader)
-        print(yaml_data)
 
     conv_data = yaml_data['conversations']
     new_data = [input, response]
@@ -69,33 +72,35 @@ def save_to_yaml(input, response, yaml_filename):
     with open(yaml_filename, 'w') as yamlfile:
         yaml.safe_dump(yaml_data, yamlfile)
     
-    print("Saved to yaml file: ",yaml_filename)
+    print("Saved interaction ",input,":",response,"to yaml file: ",yaml_filename)
 
 
 if __name__ == "__main__":
     positive_sentiment_threshold = 0.80 #set threshold for positive sentiment
-    yaml_filename_1= "chatbot_nlp/custom_data/custom_1.yml"
-    yaml_filename_2= "chatbot_nlp/custom_data/custom_2.yml"
+    session_ID = "session_1" #set session ID
+    yaml_filename_1= "chatbot_nlp/custom_data_previous/"+session_ID+".yml" #filepath for previous interactions
+    yaml_filename_2= "chatbot_nlp/custom_data_current/"+session_ID+".yml" #filepath for current interactions
+
     #variables to store previous input and response
     prev_input = ""
     prev_response = ""
 
+    #intialize previous interaction file
     with open(yaml_filename_1,'w') as yamlfile:
         data = dict(
             categories = ['If user sentiment is positive, the stored data is the previous interaction'],
             conversations = []
         )
         yaml.safe_dump(data, yamlfile)
-    
     print("Created yaml file:",yaml_filename_1)
 
+    #initialize current interaction file
     with open(yaml_filename_2,'w') as yamlfile:
         data = dict(
             categories = ['If user sentiment is positive, the stored data is the current interaction'],
             conversations = []
         )
         yaml.safe_dump(data, yamlfile)
-    
     print("Created yaml file:",yaml_filename_2)
 
     #Setup chatbot and sentiment analyser models
@@ -103,6 +108,6 @@ if __name__ == "__main__":
     cbot = S2S_Chatbot.Chatbot(data_directory='chatbot_nlp/data')
     cbot.prep_data()
     model = cbot.make_model()
-    #cbot.train(save_path='model_2.h5')
-    cbot.make_inference_models(load_path='modelf.h5')
+    cbot.train(save_path='model_base_data.h5', epochs=150)
+    cbot.make_inference_models(load_path='model_base_data.h5')
     app.run("0.0.0.0", port=80, debug=False)

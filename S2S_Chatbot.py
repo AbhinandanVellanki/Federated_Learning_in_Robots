@@ -23,6 +23,8 @@ class Chatbot():
         files_list = os.listdir(self.dir_path + os.sep)
         #initialise questions and answers
         for filepath in files_list:
+            if not filepath.endswith('.yml'):
+                continue
             stream = open(self.dir_path + os.sep + filepath , 'rb')
             docs = yaml.safe_load(stream)
             conversations = docs['conversations']
@@ -116,9 +118,10 @@ class Chatbot():
         self.model.summary()
         return self.model
     
-    def train(self, save_path):
-        self.model.fit([self.encoder_input_data , self.decoder_input_data], self.decoder_output_data, batch_size=50, epochs=150 ) 
+    def train(self, save_path, epochs):
+        self.model.fit([self.encoder_input_data , self.decoder_input_data], self.decoder_output_data, batch_size=50, epochs=epochs ) 
         self.model.save(save_path)
+        print("Model saved as", save_path,"!")
 
     def make_inference_models(self, load_path):
         self.model.load_weights(str(load_path))
@@ -174,8 +177,8 @@ class Chatbot():
     def main(self):
         self.prep_data()
         model = self.make_model()
-        #self.train(save_path='new_model.h5')
-        self.make_inference_models(load_path='new_model.h5')
+        #self.train(save_path='model.h5', epochs=150)
+        self.make_inference_models(load_path='model_base_data.h5')
         query = ''
         while True:
             query = str(input("Enter Question: "))
