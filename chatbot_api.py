@@ -108,6 +108,6 @@ if __name__ == "__main__":
     cbot = S2S_Chatbot.Chatbot(data_directory='chatbot_nlp/data')
     cbot.prep_data()
     model = cbot.make_model()
-    cbot.train(save_path='model_base_data.h5', epochs=150)
+    #cbot.train(load_path='None', save_path='model_base_data.h5', epochs=150)
     cbot.make_inference_models(load_path='model_base_data.h5')
     app.run("0.0.0.0", port=80, debug=False)

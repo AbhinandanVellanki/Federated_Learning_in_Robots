@@ -118,7 +118,14 @@ class Chatbot():
         self.model.summary()
         return self.model
     
-    def train(self, save_path, epochs):
+    def train(self, load_path, save_path, epochs):
+
+        if not load_path=='None':
+            print("Retraining model",load_path,"...")
+            self.model.load_weights(load_path)
+        else:
+            print("Training model...")
+
         self.model.fit([self.encoder_input_data , self.decoder_input_data], self.decoder_output_data, batch_size=50, epochs=epochs ) 
         self.model.save(save_path)
         print("Model saved as", save_path,"!")
@@ -177,8 +184,8 @@ class Chatbot():
     def main(self):
         self.prep_data()
         model = self.make_model()
-        #self.train(save_path='model.h5', epochs=150)
-        self.make_inference_models(load_path='model_base_data.h5')
+        self.train(load_path='None', save_path='model.h5', epochs=150)
+        self.make_inference_models(load_path='model.h5')
         query = ''
         while True:
             query = str(input("Enter Question: "))
