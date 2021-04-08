@@ -67,6 +67,11 @@ class Chatbot():
     def prep_data(self):
         for word in self.tokenizer.word_index:
             self.vocab.append(word)
+        
+        #save base model vocabulary
+        with open('model_vocab.txt', 'w') as f:
+            for item in self.vocab:
+                f.write("%s\n" % item)
 
         tokenized_questions = self.tokenizer.texts_to_sequences(self.questions )
         self.maxlen_questions = max( [ len(x) for x in tokenized_questions ] )
@@ -143,7 +148,7 @@ class Chatbot():
     def chat(self, query):
         model_input = self.str_to_tokens(query)
         if str(type(model_input)) == '<class \'KeyError\'>':
-            return "I do not know what "+str(model_input)+" means, can you rephrase your sentence"
+            return " I do not know what "+str(model_input)+" means, can you rephrase your sentence end"
         states_values = self.encoder_model.predict( model_input )
         empty_target_seq = np.zeros( ( 1 , 1 ) )
         empty_target_seq[0, 0] = self.tokenizer.word_index['start']

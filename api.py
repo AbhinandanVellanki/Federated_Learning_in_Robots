@@ -1,5 +1,6 @@
 import os
 from flask import Flask, flash, request, redirect, url_for, jsonify
+from tensorflow.python.ops.numpy_ops.np_math_ops import positive
 import S2S_Chatbot
 import sentiment_analyse
 import yaml
@@ -16,7 +17,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def upload_input():
     global prev_input
     global prev_response
-    global yaml_filename
+    global yaml_filename_1
+    global yaml_filename_2
+    global positive_sentiment_threshold
     if request.method == 'POST':
         # check if the post request has the input part
         if not request.json:
@@ -36,7 +39,8 @@ def upload_input():
                print("User response was:",query)
                print("Previous Input:", prev_input)
                print("Previous Response:", prev_response)
-               save_to_yaml(prev_input, prev_response, yaml_filename)
+               save_to_yaml(prev_input, prev_response, yaml_filename_1)
+               save_to_yaml(prev_response, query, yaml_filename_2)
             if len(query) > cbot.maxlen_questions:
                 response = 'Sorry! I cannot process such a long sentence, please say something shorter'
             else:
@@ -70,21 +74,29 @@ def save_to_yaml(input, response, yaml_filename):
 
 if __name__ == "__main__":
     positive_sentiment_threshold = 0.80 #set threshold for positive sentiment
-    yaml_filename = "custom.yml"
-
+    yaml_filename_1= "chatbot_nlp/custom_data/custom_1.yml"
+    yaml_filename_2= "chatbot_nlp/custom_data/custom_2.yml"
     #variables to store previous input and response
     prev_input = ""
     prev_response = ""
 
-    with open(yaml_filename,'w') as yamlfile:
-        #cur_yaml = yaml.load(yamlfile, Loader=yaml.FullLoader)
+    with open(yaml_filename_1,'w') as yamlfile:
         data = dict(
-            categories = ['custom conversation data'],
+            categories = ['If user sentiment is positive, the stored data is the previous interaction'],
             conversations = []
         )
         yaml.safe_dump(data, yamlfile)
     
-    print("Created yaml file:",yaml_filename)
+    print("Created yaml file:",yaml_filename_1)
+
+    with open(yaml_filename_2,'w') as yamlfile:
+        data = dict(
+            categories = ['If user sentiment is positive, the stored data is the current interaction'],
+            conversations = []
+        )
+        yaml.safe_dump(data, yamlfile)
+    
+    print("Created yaml file:",yaml_filename_2)
 
     #Setup chatbot and sentiment analyser models
     sentiment_analyser = sentiment_analyse.Sentiment_Analyse()
