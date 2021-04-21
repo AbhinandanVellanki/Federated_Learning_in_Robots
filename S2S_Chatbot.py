@@ -6,6 +6,7 @@ import os
 import yaml
 from gensim.models import Word2Vec
 import re
+import datetime
 
 class Chatbot():
     dir_path = ''
@@ -113,7 +114,7 @@ class Chatbot():
         output = self.decoder_dense ( self.decoder_outputs )
 
         self.model = tf.keras.models.Model([self.encoder_inputs, self.decoder_inputs], output )
-        self.model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='categorical_crossentropy')
+        self.model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.01), loss='categorical_crossentropy')
 
         self.model.summary()
         return self.model
@@ -125,8 +126,11 @@ class Chatbot():
             self.model.load_weights(load_path)
         else:
             print("Training model...")
+        
+        log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-        self.model.fit([self.encoder_input_data , self.decoder_input_data], self.decoder_output_data, batch_size=50, epochs=epochs ) 
+        self.model.fit([self.encoder_input_data , self.decoder_input_data], self.decoder_output_data, batch_size=50, epochs=epochs, callbacks=[tensorboard_callback]) 
         self.model.save(save_path)
         print("Model saved as", save_path,"!")
 

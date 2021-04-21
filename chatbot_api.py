@@ -35,22 +35,19 @@ def upload_input():
             return jsonify({ "Item": "why won't you say something"} )
         else:
             if prev_input != "" and prev_response != "" and sentiment_analyser.predict_sentiment(query) > positive_sentiment_threshold:
-               print("User sentiment is positive!:", sentiment_analyser.predict_sentiment(query))
-               print("Saving previous interaction...")
-               print("User response was:",query)
-               print("Previous Input:", prev_input)
-               print("Previous Response:", prev_response)
-               save_to_yaml(prev_input, prev_response, yaml_filename_1)
-               print("Saving current interaction...")
-               print("Input:",prev_response)
-               print("Response:",query)
-               save_to_yaml(prev_response, query, yaml_filename_2)
-            if len(query) > cbot.maxlen_questions:
-                response = 'Sorry! I cannot process such a long sentence, please say something shorter'
-            else:
-                response = cbot.chat(query=str(query)).replace('\'', '')
-                response = response[1:-4]
-                print("Chatbot response sentiment: ",sentiment_analyser.predict_sentiment(response))
+                print("User sentiment is positive!:", sentiment_analyser.predict_sentiment(query))
+                print("Saving previous interaction...")
+                print("User response was:",query)
+                print("Previous Input:", prev_input)
+                print("Previous Response:", prev_response)
+                save_to_yaml(prev_input, prev_response, yaml_filename_1)
+                print("Saving current interaction...")
+                print("Input:",prev_response)
+                print("Response:",query)
+                save_to_yaml(prev_response, query, yaml_filename_2) 
+            response = cbot.chat(query=str(query)).replace('\'', '')
+            response = response[1:-4]
+            print("Chatbot response sentiment: ",sentiment_analyser.predict_sentiment(response))
             prev_input = query
             prev_response = response
             return jsonify({ "Item": response})   
@@ -76,8 +73,8 @@ def save_to_yaml(input, response, yaml_filename):
 
 
 if __name__ == "__main__":
-    positive_sentiment_threshold = 0.80 #set threshold for positive sentiment
-    session_ID = "session_1" #set session ID
+    positive_sentiment_threshold = 0.90 #set threshold for positive sentiment
+    session_ID = "session_2" #set session ID
     yaml_filename_1= "chatbot_nlp/custom_data_previous/"+session_ID+".yml" #filepath for previous interactions
     yaml_filename_2= "chatbot_nlp/custom_data_current/"+session_ID+".yml" #filepath for current interactions
 
@@ -108,6 +105,6 @@ if __name__ == "__main__":
     cbot = S2S_Chatbot.Chatbot(data_directory='chatbot_nlp/data')
     cbot.prep_data()
     model = cbot.make_model()
-    #cbot.train(load_path='None', save_path='model_base_data.h5', epochs=150)
+    cbot.train(load_path='None', save_path='model_base_data.h5', epochs=150)
     cbot.make_inference_models(load_path='model_base_data.h5')
     app.run("0.0.0.0", port=80, debug=False)

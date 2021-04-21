@@ -25,4 +25,4 @@ def main(source, destination, load_model_name, save_model_name, epochs):
     train_model(data_directory=data_directory, load_model_name=load_model_name, save_model_name=save_model_name, epochs=epochs)
 
 if __name__=='__main__':
-    main(source='chatbot_nlp/custom_data_current/', destination='chatbot_nlp/data/', save_model_name='model_retrained_data.h5', load_model_name='model_base_data.h5', epochs=100)
+    main(source='chatbot_nlp/custom_data_previous/', destination='chatbot_nlp/data/', save_model_name='model_retrained_data', load_model_name='model_base_data.h5', epochs=100)

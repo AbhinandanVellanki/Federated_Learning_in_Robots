@@ -4,3 +4,5 @@ chatbot_nlp/
 *.pt
 .DS_Store
 model_vocab.txt
+logs/
+stored_model/
