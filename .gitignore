@@ -6,3 +6,4 @@ chatbot_nlp/
 model_vocab.txt
 logs/
 stored_model/
+__pycache__/
